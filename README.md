@@ -1,4 +1,4 @@
-dec-decoder: and iso.dec decoder written in Go
+dec-decoder: an iso.dec decoder written in Go
 ==============================================
 
 This tool implements the NASOS method of decoding .iso.dec files
@@ -8,8 +8,8 @@ History
 -------
 
 This tool is also written in Go and born of a frustration that:
-1. the NASOS tool is being used to archive isos
-2. the original NASOS tool is written as a .NET GUI tool for Windows
+1. the NASOS tool is being used to archive isos with limited tools available
+2. the original NASOS tool is written as a .NET GUI tool for Windows and is slow on Linux
 3. it is hard to find a canonical site for getting the tool
 4. It requires downloading unknown binaries 
 
