@@ -30,9 +30,9 @@ func checkPosition(s io.Seeker) int64 {
 	return pos
 }
 
-func checkOffset(s io.Seeker, offset uint32) {
+func checkOffset(s io.Seeker, offset int64) {
 	pos := checkPosition(s)
-	if pos != int64(offset) {
+	if pos != offset {
 		vLog("READ: position: %x expected: %x", pos, offset)
 	}
 }
@@ -41,15 +41,23 @@ type byteProvider interface {
 	Next(n int) []byte
 }
 
-func readNextOffset(s io.Seeker, p byteProvider) uint32 {
-	offset := binary.LittleEndian.Uint32(p.Next(4)) << 8
-	checkOffset(s, offset)
-	return offset
+func readNextOffset(s io.Seeker, p byteProvider) (int64, bool) {
+	rawOffset := binary.LittleEndian.Uint32(p.Next(4))
+	if rawOffset != 0xffffffff {
+		offset := int64(rawOffset) << 8
+		checkOffset(s, offset)
+		return offset, true
+	}
+	return 0, false
 }
 
-func setNextOffset(s io.Seeker, p byteProvider) {
-	offset := readNextOffset(s, p)
-	s.Seek(int64(offset), io.SeekStart)
+func setNextOffset(s io.Seeker, p byteProvider) bool {
+	offset, ok := readNextOffset(s, p)
+	if ok {
+		_, err := s.Seek(offset, io.SeekStart)
+		errorExit(err)
+	}
+	return ok
 }
 
 func blockTransfer(r io.Reader, w io.Writer, buffer []byte) int {

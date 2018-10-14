@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
@@ -50,11 +49,7 @@ func decodeGameCube(r *os.File, outPath string) {
 			padOffset = 0
 		}
 
-		rawOffset := binary.LittleEndian.Uint32(startBuffer.Next(4))
-		if rawOffset != 0xffffffff {
-			offset := rawOffset << 8
-			checkOffset(r, offset)
-			r.Seek(int64(offset), io.SeekStart)
+		if setNextOffset(r, startBuffer) {
 			wrote := uint64(blockTransferWithHash(r, w, transfer, hash))
 			bytesWritten += wrote
 			padOffset += wrote

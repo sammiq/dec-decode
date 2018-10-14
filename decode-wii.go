@@ -67,7 +67,7 @@ func decodeWii(r *os.File, outPath string, sectorSize uint) {
 	for i := uint64(0); i < partitions[0].PartitionOffset; i += 1024 {
 		readNextOffset(r, startBuffer) // we don't need this
 		bytesWritten += uint64(blockTransferWithHash(r, w, transfer, hash))
-		vLog("\nWRITE: offset: %x\n", bytesWritten)
+		vLog("WRITE: offset: %x\n", bytesWritten)
 	}
 	fmt.Println("Done")
 
@@ -76,7 +76,7 @@ func decodeWii(r *os.File, outPath string, sectorSize uint) {
 		for i := uint64(0); i < partitions[j].DataOffset; i += 1024 {
 			setNextOffset(r, startBuffer)
 			bytesWritten += uint64(blockTransferWithHash(r, w, transfer, hash))
-			vLog("\nWRITE: offset: %x\n", bytesWritten)
+			vLog("WRITE: offset: %x\n", bytesWritten)
 		}
 		fmt.Println("Done")
 
@@ -92,33 +92,28 @@ func decodeWii(r *os.File, outPath string, sectorSize uint) {
 			wrote := uint64(blockTransferWithHash(r, w, transfer, hash))
 			bytesWritten += wrote
 			dataSize += wrote
-			vLog("\nWRITE: offset: %x\n", bytesWritten)
+			vLog("WRITE: offset: %x\n", bytesWritten)
 
 			writeBuffer := NewFixedRecord(0x7C00)
 			transfer2 := make([]byte, 1024)
 
 			for k := 0; k < 31; k++ {
 				if (padOffset & 0x3FFFF) == 0 {
-					vLog("\nPADDING: block: %d id: %s\n", padBlock, id)
+					vLog("PADDING: block: %d id: %s\n", padBlock, id)
 					padding = generatePaddingBlock(padBlock, id, 0)
 					padBlock++
 					padOffset = 0
 				}
 
-				rawOffset := binary.LittleEndian.Uint32(startBuffer.Next(4))
-				if rawOffset != 0xffffffff {
-					offset := rawOffset << 8
-					checkOffset(r, offset)
-					r.Seek(int64(offset), io.SeekStart)
-
+				if setNextOffset(r, startBuffer) {
 					padOffset += uint64(blockTransfer(r, writeBuffer, transfer2))
-					vLog("\ntfr %d poffset: %x buffer: %x\n", k, padOffset, writeBuffer.Len())
+					vLog("tfr %d poffset: %x buffer: %x\n", k, padOffset, writeBuffer.Len())
 				} else {
 					slice := padding[padOffset : padOffset+1024]
 					_, err = writeBuffer.Write(slice)
 					errorExit(err)
 					padOffset += 1024
-					vLog("\npad %d poffset: %x buffer: %x\n", k, padOffset, writeBuffer.Len())
+					vLog("pad %d poffset: %x buffer: %x\n", k, padOffset, writeBuffer.Len())
 				}
 			}
 			iv := getIV(transfer)
@@ -128,10 +123,10 @@ func decodeWii(r *os.File, outPath string, sectorSize uint) {
 			_, err = w.Write(output)
 			errorExit(err)
 			bytesWritten += 0x7C00
-			vLog("\nWRITE: offset: %x\n", bytesWritten)
+			vLog("WRITE: offset: %x\n", bytesWritten)
 
 			dataSize += 0x7C00
-			vLog("\nDATA SIZE: %d / %d\n", dataSize, partitions[j].DataSize)
+			vLog("DATA SIZE: %d / %d\n", dataSize, partitions[j].DataSize)
 		}
 		fmt.Println("Done")
 
@@ -140,22 +135,17 @@ func decodeWii(r *os.File, outPath string, sectorSize uint) {
 		padBlock = uint32(bytesWritten / 0x40000)
 		for bytesWritten != partitions[j].PartitionEndOffset {
 			if (padOffset & 0x3FFFF) == 0 {
-				vLog("\ngenerate padding: %d %s\n", padBlock, id)
+				vLog("generate padding: %d %s\n", padBlock, id)
 				padding = generatePaddingBlock(padBlock, id, 0)
 				padBlock++
-				padOffset = 0
+				padOffset = bytesWritten % 0x40000
 			}
 
-			rawOffset := binary.LittleEndian.Uint32(startBuffer.Next(4))
-			if rawOffset != 0xffffffff {
-				offset := rawOffset << 8
-				checkOffset(r, offset)
-				r.Seek(int64(offset), io.SeekStart)
-
+			if setNextOffset(r, startBuffer) {
 				wrote := uint64(blockTransferWithHash(r, w, transfer, hash))
 				bytesWritten += wrote
 				padOffset += wrote
-				vLog("\ntfr WRITE: offset: %x\n", bytesWritten)
+				vLog("WRITE: tfr - poffset: %x offset: %x\n", padOffset, bytesWritten)
 			} else {
 				slice := padding[padOffset : padOffset+1024]
 				io.Copy(hash, bytes.NewBuffer(slice))
@@ -163,7 +153,7 @@ func decodeWii(r *os.File, outPath string, sectorSize uint) {
 				errorExit(err)
 				bytesWritten += 1024
 				padOffset += 1024
-				vLog("\npad WRITE: offset: %x\n", bytesWritten)
+				vLog("WRITE: pad - poffset: %x offset: %x\n", padOffset, bytesWritten)
 			}
 		}
 		fmt.Println("Done")

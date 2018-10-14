@@ -1,5 +1,5 @@
-dec-decoder: an iso.dec decoder written in Go
-==============================================
+dec-decode: an iso.dec decoder written in Go
+============================================
 
 This tool implements the NASOS method of decoding .iso.dec files
 back into plain .iso files.
@@ -43,5 +43,12 @@ Usage
     Arguments:
     Files:         list of files to decode
 
+Status
+------
 
+System  | Size | Status
+--------|------|-------
+Wii     | DVD5 | Working
+Wii     | DVD9 | Working
+GameCube| DISC | Untested
 
