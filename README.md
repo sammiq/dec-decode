@@ -35,6 +35,7 @@ Usage
     dec-decode [OPTIONS] Files...
 
     Application Options:
+    -s, --suffix=  add a suffix to the output file
     -v, --verbose  show lots more information than is probably necessary
 
     Help Options:

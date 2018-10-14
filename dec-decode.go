@@ -11,7 +11,8 @@ import (
 )
 
 var opts struct {
-	Verbose    bool `short:"v" long:"verbose" description:"show lots more information than is probably necessary"`
+	Suffix     string `short:"s" long:"suffix" description:"add a suffix to the output file"`
+	Verbose    bool   `short:"v" long:"verbose" description:"show lots more information than is probably necessary"`
 	Positional struct {
 		Files []string `description:"list of files to decode" required:"true"`
 	} `positional-args:"true" required:"true"`
@@ -35,7 +36,13 @@ func main() {
 		} else {
 			outPath = path.Join(".", fileName+".iso")
 		}
-		//outPath += ".dmp"
+
+		if opts.Suffix != "" {
+			if !strings.HasPrefix(opts.Suffix, ".") {
+				outPath += "."
+			}
+			outPath += opts.Suffix
+		}
 
 		signature := readSignature(fin)
 		fin.Seek(0, io.SeekStart)
