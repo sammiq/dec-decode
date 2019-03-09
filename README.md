@@ -8,25 +8,25 @@ History
 -------
 
 This tool is also written in Go and born of a frustration that:
-1. the NASOS tool is being used to archive isos with limited tools available
+1. the NASOS tool is being used to archive ISOs with limited implementations available
 2. the original NASOS tool is written as a .NET GUI tool for Windows and is slow on Linux
 3. it is hard to find a canonical site for getting the tool
 4. It requires downloading unknown binaries 
 
 This is a pure Go implementation that documents how this works and
-should work on all platforms supported by Go. This allevates all the
+should work on all platforms supported by Go. This alleviates all the
 concerns above.
 
 Installation
 ------------
 
-You need a working [Go](https://golang.org/) installation (I used Go 1.10.1 on Ubuntu Linux 18.04)
+You need a working [Go](https://golang.org/) installation (I used Go 1.12 on Ubuntu Linux 18.04)
 
-You will neet to install the required libraries:
+For Go < 1.11 the you will need to install the required libraries manually:
 
     go get github.com/jessevdk/go-flags
 
-You can then build the tool by:
+Build the tool with:
 
     go install
 
