@@ -45,7 +45,8 @@ func main() {
 		}
 
 		signature := readSignature(fin)
-		fin.Seek(0, io.SeekStart)
+		_, err = fin.Seek(0, io.SeekStart)
+		errorExit(err)
 		switch signature {
 		case "GCML":
 		case "GCMM":
