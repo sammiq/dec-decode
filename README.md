@@ -26,7 +26,12 @@ For Go < 1.11 the you will need to install the required libraries manually:
 
     go get github.com/jessevdk/go-flags
 
-Build the tool with:
+
+Get the tool quickly with:
+
+    go get github.com/sammiq/dec-decode
+    
+Alternatively, you can clone this repository and build the tool with:
 
     go install
 
