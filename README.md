@@ -22,6 +22,10 @@ Installation
 
 You need a working [Go](https://golang.org/) installation (I used Go 1.12 on Ubuntu Linux 18.04)
 
+For Go >= 1.17, you can install the tool and required libraries with:
+
+    go install github.com/sammiq/dec-decode@latest
+
 For Go < 1.11 the you will need to install the required libraries manually:
 
     go get github.com/jessevdk/go-flags
